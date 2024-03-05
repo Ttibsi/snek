@@ -2,7 +2,7 @@ use std::io;
 
 use crossterm::{
     QueueableCommand,
-    style::{self, Stylize},
+    style::{self, StyledContent},
     terminal,
 };
 
@@ -18,9 +18,12 @@ pub fn first_food() -> (u16, u16) {
     ret
 }
 
-pub fn print_at_cell(location: (u16, u16), c: char) -> io::Result<()> {
+pub fn print_at_cell<T: std::fmt::Display>(location: &(u16, u16), c: StyledContent<T>) -> io::Result<()> {
+    let a = location.0;
+    let b = location.1;
+
     io::stdout()
-        .queue(crossterm::cursor::MoveTo(location))?
+        .queue(crossterm::cursor::MoveTo(a, b))?
         .queue(style::PrintStyledContent(c))?;
 
     Ok(())

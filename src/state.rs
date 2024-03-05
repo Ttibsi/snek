@@ -1,3 +1,6 @@
+use crate::utils::print_at_cell;
+use crossterm::style::Stylize;
+
 pub enum Direction { Left, Up, Down, Right }
 pub enum Command { Go(Direction), Quit, }
 
@@ -8,7 +11,7 @@ pub struct State {
 }
 
 impl State {
-    pub fn print() {
-        // TODO: Use print_to_cell to print out the snake and food cell
+    pub fn print(self) {
+        self.body_cells.iter().for_each(|elem| print_at_cell(elem, 'o'.reverse()).unwrap());
     }
 }
