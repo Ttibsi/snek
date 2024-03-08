@@ -13,5 +13,6 @@ pub struct State {
 impl State {
     pub fn print(self) {
         self.body_cells.iter().for_each(|elem| print_at_cell(elem, 'o'.reverse()).unwrap());
+        print_at_cell(&self.food_cell, '*'.reverse()).unwrap();
     }
 }

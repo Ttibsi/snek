@@ -1,11 +1,12 @@
+use core::time;
 use std::{
     io::{self, Write},
-    time::Duration,
+    time::Duration, thread,
 };
 
 use snek::{
     state::{Command, Direction, State},
-    utils::first_food
+    utils::{first_food, print_at_cell}
 };
 
 use crossterm::{
@@ -13,7 +14,7 @@ use crossterm::{
     execute,
     terminal::{
         self, disable_raw_mode, enable_raw_mode, EnterAlternateScreen, LeaveAlternateScreen,
-    },
+    }, ExecutableCommand, style::Stylize,
 };
 
 fn check_input() -> Option<Command> {
@@ -50,11 +51,11 @@ fn check_input() -> Option<Command> {
 }
 
 fn main() -> io::Result<()> {
-    let _ = enable_raw_mode();
+    enable_raw_mode().unwrap();
     execute!(io::stdout(), EnterAlternateScreen)?;
     io::stdout().execute(terminal::Clear(terminal::ClearType::All))?;
 
-    print_at_cell((6, 5), "_".reverse());
+    print_at_cell(&(6, 5), "_".reverse()).unwrap();
 
     io::stdout().flush()?;
     let mut state = State{ body_cells: vec![], food_cell: first_food(), direction: Direction::Right };
@@ -71,11 +72,11 @@ fn main() -> io::Result<()> {
                 Command::Quit => break,
             }
         }
-        // smol sleep 
+        thread::sleep(Duration::from_millis(100));
     }
 
     execute!(io::stdout(), LeaveAlternateScreen)?;
-    let _ = disable_raw_mode();
+    disable_raw_mode().unwrap();
 
     Ok(())
 }
