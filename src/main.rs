@@ -1,4 +1,3 @@
-use core::time;
 use std::{
     io::{self, Write},
     time::Duration, thread,
@@ -58,12 +57,18 @@ fn main() -> io::Result<()> {
     print_at_cell(&(6, 5), "_".reverse()).unwrap();
 
     io::stdout().flush()?;
-    let mut state = State{ body_cells: vec![], food_cell: first_food(), direction: Direction::Right };
+    let term_size = crossterm::terminal::size().unwrap();
+    let mut state = State{ body_cells: vec![(term_size.0, 1)], food_cell: first_food(), direction: Direction::Right, score: 0 };
 
     loop {
-        // CHeck if head on food 
-            // delete food, increase cells, generate new food
-        // move snake in new direction
+        io::stdout().execute(terminal::Clear(terminal::ClearType::All))?;
+
+        if state.body_cells[0] == state.food_cell {
+            state.new_food(&term_size);
+        }
+
+        // TODO: check collision
+        state.move_snake();
 
         let input = check_input();
         if let Some(cmd) = input {
