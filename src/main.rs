@@ -2,6 +2,7 @@ use std::{
     io,
     thread,
     time::Duration,
+    collections::HashMap,
 };
 
 use snek::{
@@ -18,31 +19,31 @@ use crossterm::{
     ExecutableCommand,
 };
 
-fn check_input() -> Option<Command> {
+fn check_input(s: &mut State) -> Option<Command> {
     let poll_ret = poll(Duration::from_secs(0));
     if let Ok(i) = poll_ret {
         if i {
             let event = read().unwrap();
             match event {
-                crossterm::event::Event::Key(KeyEvent {
-                    code: KeyCode::Left,
-                    ..
-                }) => return Some(Command::Go(Direction::Left)),
-                crossterm::event::Event::Key(KeyEvent {
-                    code: KeyCode::Down,
-                    ..
-                }) => return Some(Command::Go(Direction::Down)),
-                crossterm::event::Event::Key(KeyEvent {
-                    code: KeyCode::Up, ..
-                }) => return Some(Command::Go(Direction::Up)),
-                crossterm::event::Event::Key(KeyEvent {
-                    code: KeyCode::Right,
-                    ..
-                }) => return Some(Command::Go(Direction::Right)),
-                crossterm::event::Event::Key(KeyEvent {
-                    code: KeyCode::Char('q'),
-                    ..
-                }) => return Some(Command::Quit),
+                crossterm::event::Event::Key(KeyEvent {code: KeyCode::Left, ..}) => {
+                    s.direction_change.insert(Direction::Left, s.body_cells[0]);
+                    return Some(Command::Go(Direction::Left));
+                }
+                crossterm::event::Event::Key(KeyEvent { code: KeyCode::Down, .. }) => {
+                    s.direction_change.insert(Direction::Down, s.body_cells[0]);
+                    return Some(Command::Go(Direction::Down));
+                }
+                crossterm::event::Event::Key(KeyEvent { code: KeyCode::Up, .. }) => {
+                    s.direction_change.insert(Direction::Up, s.body_cells[0]);
+                    return Some(Command::Go(Direction::Up));
+                }
+                crossterm::event::Event::Key(KeyEvent { code: KeyCode::Right, .. }) => {
+                    s.direction_change.insert(Direction::Right, s.body_cells[0]);
+                    return Some(Command::Go(Direction::Right));
+                }
+                crossterm::event::Event::Key(KeyEvent { code: KeyCode::Char('q'), .. }) => {
+                    return Some(Command::Quit);
+                }
                 _ => return None,
             }
         };
@@ -61,6 +62,7 @@ fn main() -> io::Result<()> {
         food_cell: first_food(),
         direction: Direction::Right,
         score: 0,
+        direction_change: HashMap::new()
     };
 
     loop {
@@ -74,7 +76,7 @@ fn main() -> io::Result<()> {
         // TODO: check collision
         state.move_snake(&term_size);
 
-        let input = check_input();
+        let input = check_input(&mut state);
         if let Some(cmd) = input {
             match cmd {
                 Command::Go(dir) => {

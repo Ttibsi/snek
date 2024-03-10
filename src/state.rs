@@ -1,7 +1,9 @@
 use crate::utils::print_at_cell;
 use crossterm::style::Stylize;
 use rand::Rng;
+use std::collections::HashMap;
 
+#[derive(PartialEq, Eq, Hash)]
 pub enum Direction {
     Left,
     Up,
@@ -18,6 +20,7 @@ pub struct State {
     pub food_cell: (u16, u16),
     pub direction: Direction,
     pub score: i32,
+    pub direction_change: HashMap<Direction, (u16, u16)>
 }
 
 impl State {
