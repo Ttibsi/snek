@@ -1,11 +1,12 @@
 use std::{
-    io::{self, Write},
-    time::Duration, thread,
+    io,
+    thread,
+    time::Duration,
 };
 
 use snek::{
     state::{Command, Direction, State},
-    utils::{first_food, print_at_cell}
+    utils::first_food,
 };
 
 use crossterm::{
@@ -13,7 +14,8 @@ use crossterm::{
     execute,
     terminal::{
         self, disable_raw_mode, enable_raw_mode, EnterAlternateScreen, LeaveAlternateScreen,
-    }, ExecutableCommand, style::Stylize,
+    },
+    ExecutableCommand,
 };
 
 fn check_input() -> Option<Command> {
@@ -52,32 +54,37 @@ fn check_input() -> Option<Command> {
 fn main() -> io::Result<()> {
     enable_raw_mode().unwrap();
     execute!(io::stdout(), EnterAlternateScreen)?;
-    io::stdout().execute(terminal::Clear(terminal::ClearType::All))?;
 
-    print_at_cell(&(6, 5), "_".reverse()).unwrap();
-
-    io::stdout().flush()?;
     let term_size = crossterm::terminal::size().unwrap();
-    let mut state = State{ body_cells: vec![(term_size.0, 1)], food_cell: first_food(), direction: Direction::Right, score: 0 };
+    let mut state = State {
+        body_cells: vec![(term_size.0, 1)],
+        food_cell: first_food(),
+        direction: Direction::Right,
+        score: 0,
+    };
 
     loop {
         io::stdout().execute(terminal::Clear(terminal::ClearType::All))?;
+        state.print();
 
-        if state.body_cells[0] == state.food_cell {
+        if state.body_cells[0] == state.food_cell.clone() {
             state.new_food(&term_size);
         }
 
         // TODO: check collision
-        state.move_snake();
+        state.move_snake(&term_size);
 
         let input = check_input();
         if let Some(cmd) = input {
             match cmd {
-                Command::Go(dir) => { state.direction = dir; },
+                Command::Go(dir) => {
+                    state.direction = dir;
+                }
                 Command::Quit => break,
             }
         }
-        thread::sleep(Duration::from_millis(100));
+
+        thread::sleep(Duration::from_millis(50));
     }
 
     execute!(io::stdout(), LeaveAlternateScreen)?;
