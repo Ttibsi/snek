@@ -59,7 +59,7 @@ fn main() -> io::Result<()> {
     let term_size = crossterm::terminal::size().unwrap();
     let mut state = State {
         body_cells: vec![(term_size.0, 1)],
-        food_cell: first_food(),
+        food_cell: first_food(term_size),
         direction: Direction::Right,
         score: 0,
         direction_change: HashMap::new()

@@ -2,19 +2,11 @@ use std::io::{self, Write};
 
 use crossterm::{
     style::{self, StyledContent},
-    terminal, QueueableCommand,
+    QueueableCommand,
 };
 
-pub fn first_food() -> (u16, u16) {
-    let mut ret = (0, 0);
-
-    let term_size = terminal::size();
-    if let Ok(size) = term_size {
-        ret.0 = (size.0 * 2) / 3;
-        ret.1 = (size.1 * 2) / 3;
-    }
-
-    ret
+pub fn first_food(term_size: (u16, u16)) -> (u16, u16) {
+    ((term_size.0 * 2) / 3, (term_size.1 * 2) / 3)
 }
 
 pub fn print_at_cell<T: std::fmt::Display>( location: &(u16, u16), c: StyledContent<T>,) -> io::Result<()> {
@@ -29,3 +21,14 @@ pub fn print_at_cell<T: std::fmt::Display>( location: &(u16, u16), c: StyledCont
 
     Ok(())
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_first_food() {
+        assert_eq!(first_food((12, 12)), (8,8));
+    }
+}
+
